@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=960, height=540, initial-scale=1.0" />
+<title>三角函数讲解 · 第二段</title>
+<style>
+:root{--board:#0d1b16;--chalk:#f4f4f0;--yellow:#ffd97a;--blue:#9cc7ff;--muted:#aab8ae;--grid:rgba(196,224,207,.075)}
+*{box-sizing:border-box}html,body{margin:0;width:960px;height:540px;overflow:hidden;background:var(--board)}
+body{font-family:Georgia,"Times New Roman","STSong",serif;color:var(--chalk)}
+#stage{position:relative;width:960px;height:540px;overflow:hidden;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),radial-gradient(ellipse at 50% 42%,#153025 0%,var(--board) 72%);background-size:32px 32px,32px 32px,100% 100%}
+#stage:before{content:"";position:absolute;inset:18px;border:1px solid rgba(244,244,240,.12);pointer-events:none}
+.clip{position:absolute;inset:0;opacity:0;transform-origin:center center;will-change:opacity,transform}
+.eyebrow,.section-label,.page,.micro{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px}.eyebrow{position:absolute;left:64px;top:42px;color:var(--muted)}.page{position:absolute;right:64px;top:42px;color:var(--muted)}.section-label{position:absolute;left:64px;top:76px;color:var(--yellow)}
+.title{position:absolute;left:0;right:0;top:112px;text-align:center;font-size:54px;line-height:1.1;font-weight:400}.subtitle{position:absolute;left:0;right:0;top:184px;text-align:center;font:16px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px;color:var(--blue)}
+.rule{position:absolute;left:248px;right:248px;top:230px;height:1px;background:var(--yellow);opacity:.65}.formula{font-family:Georgia,"Times New Roman",serif;letter-spacing:0}.formula i{font-style:italic}.accent{color:var(--yellow)}.blue{color:var(--blue)}.muted{color:var(--muted)}
+.note{position:absolute;font-size:17px;color:var(--muted);font-style:italic}.hand{font-style:italic;color:var(--yellow);font-size:18px;transform:rotate(-3deg)}
+.identity{position:absolute;left:0;right:0;top:126px;text-align:center;font-size:52px;line-height:1.35}.identity-note{position:absolute;left:0;right:0;top:250px;text-align:center;font:16px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.underline{display:inline-block;border-bottom:2px solid var(--yellow);padding:0 12px 8px}
+.axis{position:absolute;left:72px;top:118px;width:816px;height:300px}.axis path,.axis line{fill:none;stroke:#f4f4f0;stroke-width:1;opacity:.3}.axis .guide{stroke:var(--yellow);stroke-dasharray:4 8;opacity:.48}.axis text{fill:var(--muted);font:14px ui-monospace,SFMono-Regular,Menlo,monospace}.axis .wave{stroke:var(--blue);stroke-width:3;opacity:1}.axis .wave2{stroke:var(--yellow);stroke-width:2;opacity:.8}.axis .dot{fill:var(--yellow);stroke:none;opacity:1}
+.param-title{position:absolute;left:0;right:0;top:104px;text-align:center;font-size:30px}.param-grid{position:absolute;left:116px;right:116px;top:184px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}.param{height:150px;border-top:1px solid rgba(244,244,240,.28);padding-top:20px}.param .big{font-size:42px;display:block;margin-bottom:12px}.param .desc{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);line-height:1.65}.param .mark{display:inline-block;border-bottom:2px solid var(--yellow);padding:0 8px}
+.signal-title{position:absolute;left:68px;top:96px;font-size:28px}.signal-copy{position:absolute;left:68px;top:146px;font:15px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);line-height:1.8}.signal-formula{position:absolute;left:68px;top:270px;font-size:32px}.signal-label{position:absolute;right:82px;top:104px;color:var(--yellow);font:15px ui-monospace,SFMono-Regular,Menlo,monospace}.final{position:absolute;left:0;right:0;top:110px;text-align:center;font-size:44px}.final-sub{position:absolute;left:0;right:0;top:196px;text-align:center;color:var(--muted);font:16px ui-monospace,SFMono-Regular,Menlo,monospace}.end-line{position:absolute;left:220px;right:220px;bottom:92px;height:1px;background:rgba(244,244,240,.35)}.end-note{position:absolute;left:0;right:0;bottom:56px;text-align:center;font:14px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:1px}
+.draw{stroke-dasharray:1200;stroke-dashoffset:1200}
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="hypercut-main" data-no-timeline data-start="0" data-duration="30" data-width="960" data-height="540" data-fps="24">
+  <div id="clip-bridge" class="clip" data-start="0" data-duration="4.8" data-track-index="0">
+    <div class="eyebrow">MATHEMATICS / 02</div><div class="page">TRIGONOMETRY</div><div class="section-label">从单位圆继续</div>
+    <div class="identity formula"><span class="underline"><span class="accent">sin² <i>θ</i></span></span> + <span class="underline"><span class="blue">cos² <i>θ</i></span></span> = 1</div>
+    <div class="identity-note">半径恒为 1 · 现在，让参数进入函数</div>
+    <svg style="position:absolute;left:342px;top:314px;width:276px;height:82px" viewBox="0 0 276 82" aria-hidden="true"><path class="draw" d="M8 42 C43 10 78 74 113 42 S183 10 218 42 S253 74 268 42" fill="none" stroke="#9cc7ff" stroke-width="2"/><path d="M8 68 H268" stroke="#f4f4f0" opacity=".25"/></svg>
+  </div>
+  <div id="clip-parameter" class="clip" data-start="3.8" data-duration="7.4" data-track-index="1">
+    <div class="section-label">04  /  参数化</div><div class="page">01 / 03</div><div class="param-title formula"><span class="muted">y = </span><span class="accent">A</span> sin(<span class="blue">ω</span><i>t</i> + <span class="accent">φ</span>)</div>
+    <div class="param-grid formula"><div class="param"><span class="big mark accent">A</span><span class="desc">振幅<br/>决定上下摆动的高度</span></div><div class="param"><span class="big mark blue">ω</span><span class="desc">角频率<br/>决定变化有多快</span></div><div class="param"><span class="big mark accent">φ</span><span class="desc">初相位<br/>决定从哪里开始</span></div></div>
+    <div class="hand" style="left:704px;top:390px">三个旋钮，同一条曲线</div>
+  </div>
+  <div id="clip-amplitude" class="clip" data-start="10.2" data-duration="7.4" data-track-index="2">
+    <div class="section-label">05  /  振幅与周期</div><div class="page">02 / 03</div><div class="micro" style="position:absolute;left:78px;top:108px;color:var(--muted)">A = 1　　T = 2π / ω</div>
+    <svg class="axis" viewBox="0 0 816 300" aria-hidden="true"><path d="M42 150 H790 M62 28 V276"/><path class="guide" d="M62 82 H790 M62 218 H790"/><path class="draw" d="M62 150 C112 58 162 58 212 150 S312 242 362 150 S462 58 512 150 S612 242 662 150 S742 76 790 150"/><path d="M62 82 V218 M362 82 V218" class="guide"/><text x="52" y="48">1</text><text x="45" y="231">−1</text><text x="56" y="294">0</text><text x="343" y="294">T</text><text x="747" y="294">2T</text></svg>
+    <div class="hand" style="left:690px;top:128px">峰值 = A</div><div class="hand" style="left:676px;top:350px">重复一次的时间 = T</div>
+  </div>
+  <div id="clip-phase" class="clip" data-start="16.4" data-duration="7.0" data-track-index="3">
+    <div class="section-label">06  /  相位移动</div><div class="page">03 / 03</div><div class="signal-title formula"><span class="accent">φ</span> 改变起点，不改变形状</div>
+    <svg class="axis" viewBox="0 0 816 300" aria-hidden="true"><path d="M42 150 H790 M62 28 V276"/><path class="guide" d="M62 150 H790"/><path class="wave" d="M62 150 C112 58 162 58 212 150 S312 242 362 150 S462 58 512 150 S612 242 662 150 S742 58 790 150"/><path class="wave2" d="M62 150 C112 242 162 242 212 150 S312 58 362 150 S462 242 512 150 S612 58 662 150 S742 242 790 150"/><text x="650" y="70" fill="#9cc7ff" font-size="15" font-family="ui-monospace">φ = 0</text><text x="650" y="252" fill="#ffd97a" font-size="15" font-family="ui-monospace">φ = π</text></svg>
+    <div class="signal-copy" style="left:98px;top:374px">蓝线与黄线振幅相同<br/>只是沿时间轴错开</div>
+  </div>
+  <div id="clip-application" class="clip" data-start="22.7" data-duration="5.8" data-track-index="4">
+    <div class="section-label">07  /  真实信号</div><div class="page">APPLICATION</div><div class="signal-title formula">声音、潮汐、交流电</div><div class="signal-copy">周期性并不神秘<br/>它只是变化在重复</div><div class="signal-formula formula"><span class="accent">y</span>(<i>t</i>) = 2 sin(π<i>t</i>)</div><div class="signal-label">振幅 2　·　周期 2 秒</div>
+    <svg style="position:absolute;left:500px;top:118px;width:370px;height:250px" viewBox="0 0 370 250" aria-hidden="true"><path d="M20 125 H355 M38 22 V225" stroke="#f4f4f0" opacity=".3"/><path class="draw" d="M38 125 C60 35 82 35 104 125 S148 215 170 125 S214 35 236 125 S280 215 302 125 S335 35 355 125" fill="none" stroke="#9cc7ff" stroke-width="3"/><circle id="signal-dot" cx="38" cy="125" r="5" fill="#ffd97a"/><text x="26" y="242" fill="#aab8ae" font-size="13" font-family="ui-monospace">0</text><text x="168" y="242" fill="#aab8ae" font-size="13" font-family="ui-monospace">1s</text><text x="314" y="242" fill="#aab8ae" font-size="13" font-family="ui-monospace">2s</text></svg>
+  </div>
+  <div id="clip-outro" class="clip" data-start="27.2" data-duration="2.8" data-track-index="5">
+    <div class="section-label">总结</div><div class="page">END / 02</div><div class="final formula"><span class="accent">A</span> 控制高度　·　<span class="blue">ω</span> 控制速度　·　<span class="accent">φ</span> 控制起点</div><div class="final-sub">读懂参数，就读懂周期变化</div><div class="end-line"></div><div class="end-note">三角函数讲解　/　完</div>
+  </div>
+</div>
+<script>
+(function(){
+  const stage=document.getElementById('stage');
+  const clips=[...stage.querySelectorAll('.clip')];
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const ease=v=>{v=clamp(v,0,1);return v*v*(3-2*v)};
+  function state(t,s,d){const on=ease((t-s)/.65),off=ease((s+d-t)/.75);return {visible:t>=s&&t<=s+d,opacity:on*off,local:clamp((t-s)/d,0,1)};}
+  function draw(el,p){if(el)el.style.strokeDashoffset=String(1200*(1-clamp(p,0,1)));}
+  function render(t){
+    clips.forEach(c=>{const p=state(t,+c.dataset.start,+c.dataset.duration);c.style.opacity=p.opacity;c.style.transform='translateY('+(p.visible?(1-p.opacity)*5:5)+'px) scale('+(0.987+p.opacity*.013)+')';});
+    draw(document.querySelector('#clip-bridge .draw'),state(t,0,4.8).local*1.5);
+    draw(document.querySelector('#clip-amplitude .draw'),state(t,10.2,7.4).local*1.35);
+    draw(document.querySelector('#clip-application .draw'),state(t,22.7,5.8).local*1.3);
+    const p=state(t,22.7,5.8), dot=document.getElementById('signal-dot'); if(dot){const q=p.local*2*Math.PI;dot.setAttribute('cx',(38+q/(2*Math.PI)*300).toFixed(2));dot.setAttribute('cy',(125-90*Math.sin(q)).toFixed(2));}
+  }
+  render(0);
+  window.addEventListener('hf-seek',event=>{const t=event.detail.time;render(t);});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "assets": [
+    {
+      "id": "audio_591bf7e4-b44c-4f38-a051-91b3ef2d8bb9",
+      "name": "arunangshubanerjee-live-football-match-stadium-crowd-cheering-563439.mp3",
+      "kind": "audio",
+      "fileName": "audio_591bf7e4-b44c-4f38-a051-91b3ef2d8bb9.mp3",
+      "sizeBytes": 559872,
+      "durationSec": 17.496,
+      "codec": "mp3",
+      "sampleRate": 48000,
+      "channels": 2,
+      "createdAt": 1787376003954
+    }
+  ],
+  "track": null
+}

@@ -1,0 +1,56 @@
+{
+  "projectId": "demo-001",
+  "meta": {
+    "title": "科技宣传片",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "duration": 60
+  },
+  "elements": [
+    {
+      "id": "background_01",
+      "type": "shape",
+      "start": 0,
+      "duration": 10,
+      "color": "#171936"
+    },
+    {
+      "id": "title_01",
+      "type": "text",
+      "text": "三角函数讲解",
+      "start": 1,
+      "duration": 60,
+      "x": 960,
+      "y": 310,
+      "fontSize": 68,
+      "color": "#F5F7FF"
+    },
+    {
+      "id": "subtitle_01",
+      "type": "text",
+      "text": "Agent-native video editing",
+      "start": 1.4,
+      "duration": 6,
+      "x": 960,
+      "y": 440,
+      "fontSize": 32,
+      "color": "#C8CBDF"
+    },
+    {
+      "id": "bgm_01",
+      "type": "audio",
+      "src": "assets/future-pulse.mp3",
+      "start": 0,
+      "duration": 10,
+      "volume": 0.3
+    }
+  ],
+  "lastPrompt": "生成三角函数讲解视频",
+  "lastEdit": {
+    "frame": 45,
+    "time": 1.875,
+    "prompt": "从这帧开始右上角加一个小logo,什么都行",
+    "version": 6
+  }
+}
