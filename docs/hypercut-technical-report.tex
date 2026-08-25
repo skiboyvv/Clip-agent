@@ -1,0 +1,368 @@
+\documentclass[aspectratio=169,UTF8,11pt]{ctexbeamer}
+
+\usetheme{default}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,shapes.geometric}
+
+\definecolor{hcblack}{HTML}{16171D}
+\definecolor{hclime}{HTML}{B9F34A}
+\definecolor{hcpurple}{HTML}{6557F5}
+\definecolor{hcgray}{HTML}{F1F2F5}
+\definecolor{hctext}{HTML}{30323A}
+\setbeamercolor{normal text}{fg=hctext,bg=white}
+\setbeamercolor{structure}{fg=hcpurple}
+\setbeamercolor{frametitle}{fg=hcblack,bg=white}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{subtitle}{fg=hclime}
+\setbeamercolor{block title}{fg=hcblack,bg=hclime}
+\setbeamercolor{block body}{fg=hctext,bg=hcgray}
+\setbeamercolor{alerted text}{fg=hcpurple}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\color{hcpurple}$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{hclime}$\bullet$}
+\setbeamertemplate{footline}{%
+  \leavevmode\hbox{%
+  \begin{beamercolorbox}[wd=.82\paperwidth,ht=2.6ex,dp=1.1ex,leftskip=1em]{author in head/foot}%
+    \color{gray}\scriptsize HyperCut · π Agent × HyperFrames
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.18\paperwidth,ht=2.6ex,dp=1.1ex,rightskip=1em plus1fil]{date in head/foot}%
+    \color{gray}\scriptsize\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}
+}
+
+\newcommand{\pill}[1]{\tikz[baseline=(x.base)]\node[fill=hcgray,rounded corners=3pt,inner xsep=5pt,inner ysep=2pt] (x) {\scriptsize #1};}
+\newcommand{\metric}[2]{\begin{minipage}[t]{0.22\linewidth}\centering{\color{hcpurple}\LARGE\bfseries #1}\\[-1mm]{\scriptsize #2}\end{minipage}}
+
+\title{HyperCut：Agent 原生视频编辑系统}
+\subtitle{基于 π Agent 与 HyperFrames 的代码驱动生成和按帧增量修改}
+\author{项目技术报告}
+\date{\today}
+
+\begin{document}
+
+{\setbeamercolor{background canvas}{bg=hcblack}
+\begin{frame}[plain]
+  \vspace{1.1cm}
+  {\color{hclime}\Large\bfseries π}\hspace{0.3em}{\color{white}\Large\bfseries HYPERCUT}
+  \vfill
+  \titlepage
+  \vfill
+  {\color{gray}\small Natural language in · Editable code out · Deterministic video rendering}
+\end{frame}}
+
+\begin{frame}{01｜项目定位}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.57\textwidth}
+      \Large 用户描述“想要什么”，系统生成可执行的视频代码，并允许围绕任意帧继续修改。
+      \vspace{0.55cm}
+      \begin{itemize}
+        \item 面向教学、宣传片、动态图形等短视频场景
+        \item 以 HTML/CSS/JavaScript 作为可审查、可修改的中间表示
+        \item 将大模型从“聊天助手”提升为可观察、可执行的编辑 Agent
+      \end{itemize}
+    \column{0.39\textwidth}
+      \begin{block}{核心链路}
+        自然语言需求
+        \\[1mm]$\downarrow$\quad π Agent
+        \\[1mm]$\downarrow$\quad HyperFrames
+        \\[1mm]$\downarrow$\quad MP4 / 实时预览
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{02｜为什么要做增量修改}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \begin{block}{传统整片重生成}
+        \begin{itemize}
+          \item 修改标题也可能重写全部代码
+          \item 等待长、成本高，已有内容容易漂移
+          \item 用户难以精确表达“从这里开始”
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{HyperCut 的交互方式}
+        \begin{itemize}
+          \item 保留当前版本作为编辑上下文
+          \item 以目标帧和文字要求限定修改范围
+          \item 新版本完成前继续展示旧视频
+        \end{itemize}
+      \end{block}
+  \end{columns}
+  \vspace{0.45cm}
+  \centering
+  \alert{创新点：把“重新生成视频”转化为“对可执行视频代码进行局部、可定位的版本编辑”。}
+\end{frame}
+
+\begin{frame}{03｜系统总体架构}
+  \centering
+  \begin{tikzpicture}[
+    node distance=8mm and 10mm,
+    box/.style={draw=hcgray,very thick,rounded corners=4pt,minimum height=10mm,minimum width=25mm,align=center,fill=white},
+    core/.style={box,draw=hcpurple,fill=hcpurple!7},
+    exec/.style={box,draw=hclime!80!black,fill=hclime!15},
+    arr/.style={-{Latex[length=2.2mm]},thick,draw=gray}
+  ]
+    \node[box] (ui) {React 前端\\需求 / 帧 / 时长};
+    \node[core,right=of ui] (api) {Node.js API\\任务与状态};
+    \node[core,right=of api] (agent) {π Agent\\规划与代码生成};
+    \node[exec,right=of agent] (hf) {HyperFrames\\lint / render};
+    \node[box,below=of api] (state) {编辑状态\\版本与操作记录};
+    \node[box,below=of hf] (out) {HTML + MP4\\Range 流式播放};
+    \draw[arr] (ui)--(api);
+    \draw[arr] (api)--(agent);
+    \draw[arr] (agent)--(hf);
+    \draw[arr,<->] (api)--(state);
+    \draw[arr] (hf)--(out);
+    \draw[arr] (out.west)-| (api.south);
+  \end{tikzpicture}
+  \vspace{0.35cm}
+
+  \pill{表现层 React/Vite}\quad\pill{编排层 Node.js}\quad\pill{智能层 π Agent}\quad\pill{执行层 HyperFrames/FFmpeg}
+\end{frame}
+
+\begin{frame}{04｜后端框架与职责边界}
+  \small
+  \begin{tabularx}{\textwidth}{@{}p{2.9cm}Xp{3.4cm}@{}}
+    \toprule
+    \textbf{模块} & \textbf{主要职责} & \textbf{关键实现} \\
+    \midrule
+    HTTP 服务 & 接收生成、修改和样式请求；提供任务轮询与媒体读取 & \texttt{server/index.mjs} \\
+    π Agent 适配层 & 组装系统提示词、模型上下文与工具；提取并规范化 HTML & \texttt{server/pi-agent.mjs} \\
+    编辑状态 & 保存项目时长、当前代码、版本、目标帧和最近操作 & JSON 持久化状态 \\
+    视频执行 & 静态检查、确定性逐帧求值、渲染 MP4 & HyperFrames 0.8.4 \\
+    样式系统 & 向生成任务提供统一的视觉方向和约束 & 8 套预置风格 \\
+    \bottomrule
+  \end{tabularx}
+\end{frame}
+
+\begin{frame}{05｜π Agent：从模型调用到可执行结果}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.55\textwidth}
+      \begin{enumerate}
+        \item 读取用户需求、时长、风格与当前编辑状态
+        \item 调用 OpenAI 兼容的 Chat Completions 接口
+        \item 要求模型输出完整、单文件 HyperFrames HTML
+        \item 规范化代码并进行静态检查
+        \item 执行渲染，观察成功或错误结果
+        \item 写回状态并向前端发布新版本
+      \end{enumerate}
+    \column{0.41\textwidth}
+      \begin{block}{模型配置}
+        \texttt{PI\_MODEL=gpt-5.6-sol}\\
+        \texttt{MODEL\_BASE\_URL=.../v1}\\
+        最长等待：300 秒
+      \end{block}
+      \begin{block}{安全边界}
+        API Key 只由后端读取，前端不会获得密钥；报告与仓库文档不展示真实密钥。
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{06｜新建视频的生成流水线}
+  \centering
+  \begin{tikzpicture}[
+    node distance=6mm,
+    s/.style={draw=hcgray,rounded corners=3pt,minimum width=24mm,minimum height=9mm,align=center},
+    a/.style={-{Latex[length=2mm]},thick,draw=hcpurple}
+  ]
+    \node[s] (req) {需求解析\\2--60 秒};
+    \node[s,right=of req] (seg) {时长分段\\默认 30 秒};
+    \node[s,right=of seg] (gen) {Agent 生成\\HTML 片段};
+    \node[s,right=of gen] (lint) {HyperFrames\\lint};
+    \node[s,right=of lint] (ren) {逐段渲染\\MP4};
+    \draw[a] (req)--(seg); \draw[a] (seg)--(gen); \draw[a] (gen)--(lint); \draw[a] (lint)--(ren);
+    \node[s,below=10mm of gen] (concat) {FFmpeg 视频拼接};
+    \node[s,right=of concat] (publish) {发布版本\\代码 + 视频};
+    \draw[a] (ren.south)|-(concat.east); \draw[a] (concat)--(publish);
+  \end{tikzpicture}
+  \vspace{0.5cm}
+
+  \begin{itemize}
+    \item 前端显式选择时长时，优先于提示词中的时长描述。
+    \item 分段降低长视频一次生成的复杂度，最终输出仍是连续视频。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{07｜按帧实时增量修改}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.62\textwidth}
+      \begin{tikzpicture}[
+        node distance=5.5mm,
+        x/.style={draw=hcgray,rounded corners=3pt,minimum width=46mm,minimum height=7.8mm,align=left,inner xsep=6pt},
+        a/.style={-{Latex[length=2mm]},draw=hcpurple,thick}
+      ]
+        \node[x] (a) {1. 播放器采集当前时间并换算目标帧};
+        \node[x,below=of a] (b) {2. 后端读取当前 HTML 与项目状态};
+        \node[x,below=of b] (c) {3. 编辑提示词限定“何时、改什么、保留什么”};
+        \node[x,below=of c] (d) {4. Agent 返回修改后的完整可执行代码};
+        \node[x,below=of d] (e) {5. lint、渲染、原子更新版本与预览};
+        \draw[a] (a)--(b);\draw[a] (b)--(c);\draw[a] (c)--(d);\draw[a] (d)--(e);
+      \end{tikzpicture}
+    \column{0.34\textwidth}
+      \begin{block}{交互保证}
+        \begin{itemize}
+          \item 修改期间旧视频可继续播放
+          \item 新版本完成后自动切换
+          \item 播放头回到目标帧附近
+          \item 操作记录支持版本追踪
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{08｜HyperFrames：确定性视频执行环境}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item 视频本质是一个可在浏览器执行的 HTML 页面
+        \item 渲染器以时间 $t$ 驱动 \texttt{hf-seek} 事件
+        \item 页面根据 $t$ 计算所有元素的状态，再捕获对应帧
+        \item 禁止依赖真实时钟、随机数或持续动画循环
+        \item 异步帧任务通过 \texttt{waitUntil(promise)} 同步登记
+      \end{itemize}
+    \column{0.41\textwidth}
+      \begin{block}{为什么重要}
+        相同代码、相同时间点产生相同画面，使预览、修改定位与最终渲染保持一致。
+      \end{block}
+      \begin{block}{中间表示的价值}
+        HTML 既是生成结果，也是可查看代码、可继续编辑、可静态检查的项目资产。
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{09｜主要 API 设计}
+  \small
+  \begin{tabularx}{\textwidth}{@{}p{3.8cm}p{1.45cm}X@{}}
+    \toprule
+    \textbf{接口} & \textbf{方法} & \textbf{作用} \\
+    \midrule
+    \texttt{/api/agent/generate} & POST & 创建生成任务，接收提示词、时长与风格 \\
+    \texttt{/api/agent/modify} & POST & 基于当前代码和目标帧创建修改任务 \\
+    \texttt{/api/jobs/:id} & GET & 查询排队、生成、渲染、完成或失败状态 \\
+    \texttt{/api/jobs/:id/code} & GET & 获取该版本的模型生成代码 \\
+    \texttt{/api/jobs/:id/video} & GET & 支持 Range 的 MP4 媒体响应 \\
+    \texttt{/api/styles} & GET & 返回可选视觉风格 \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.25cm}
+
+  \scriptsize 前端使用异步任务 + 轮询模式，避免一次 HTTP 请求长期占用并让进度状态可见。
+\end{frame}
+
+\begin{frame}{10｜状态、版本与失败处理}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \begin{block}{状态模型}
+        \begin{itemize}
+          \item 项目参数：时长、风格、帧率
+          \item 当前产物：HTML、MP4、版本号
+          \item 编辑上下文：目标帧、用户要求
+          \item 任务状态：queued / generating / rendering / completed / failed
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{可靠性措施}
+        \begin{itemize}
+          \item 模型调用设置 5 分钟上限
+          \item 生成后先 lint，再进入渲染
+          \item 失败时保留旧版本，返回可读错误
+          \item 新产物完成后才切换播放器来源
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{11｜当前原型能力}
+  \centering
+  \metric{2--60 s}{可变视频时长}\hfill
+  \metric{8}{预置视觉风格}\hfill
+  \metric{300 s}{模型调用上限}\hfill
+  \metric{1 frame}{编辑定位粒度}
+  \vspace{0.85cm}
+
+  \begin{itemize}
+    \item 从自然语言生成完整教学、宣传和动态图形视频
+    \item 查看、复制 Agent 生成的 HTML/CSS/JavaScript 代码
+    \item 在已有视频上基于指定帧进行增量修改
+    \item 对长内容分段生成、渲染并拼接为最终 MP4
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{12｜工程验证结果}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \begin{block}{静态与构建验证}
+        \begin{itemize}
+          \item Vite 前端构建成功
+          \item 1,806 个模块完成转换
+          \item HyperFrames lint：0 error / 0 warning
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{端到端运行验证}
+        \begin{itemize}
+          \item 健康检查与样式接口正常
+          \item 测试任务成功渲染 MP4
+          \item 视频返回 206 Partial Content
+          \item Range 请求与浏览器拖动播放可用
+        \end{itemize}
+      \end{block}
+  \end{columns}
+  \vspace{0.35cm}
+  \centering\scriptsize 验证结果反映当前本地原型的基本链路，不等同于生产环境压力测试。
+\end{frame}
+
+\begin{frame}{13｜演示流程建议}
+  \begin{enumerate}
+    \item 选择 20 秒时长和教学风格，输入“三角函数入门”提示词
+    \item 展示任务状态：生成代码 $\rightarrow$ lint $\rightarrow$ 渲染
+    \item 播放 MP4，并打开代码面板说明代码驱动机制
+    \item 拖动到指定时间，点击“使用当前帧”
+    \item 输入“从这一帧开始突出单位圆与正弦值”，应用修改
+    \item 修改完成后对比新旧画面，展示目标帧与操作记录
+  \end{enumerate}
+  \vspace{0.35cm}
+  \begin{block}{演示重点}
+    不是只展示“一次生成”，而是展示 Agent 读取已有作品并继续精确编辑的闭环。
+  \end{block}
+\end{frame}
+
+\begin{frame}{14｜局限与后续路线}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+      \begin{block}{当前局限}
+        \begin{itemize}
+          \item 局部修改仍需模型返回完整 HTML
+          \item JSON 状态适合单机原型，不适合高并发
+          \item 复杂长视频的生成与渲染耗时仍较高
+          \item 版本差异主要依赖结果对比，缺少结构化 patch
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{演进方向}
+        \begin{itemize}
+          \item 引入结构化时间线 IR 与工具级 patch
+          \item WebSocket/SSE 推送 token、步骤和渲染进度
+          \item 数据库、对象存储和隔离式任务队列
+          \item 视觉回归、帧级 diff 与自动质量评估
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+{\setbeamercolor{background canvas}{bg=hcblack}
+\begin{frame}[plain]
+  \centering
+  \vfill
+  {\color{hclime}\LARGE\bfseries π Agent 是大脑，HyperFrames 是执行环境，\\[2mm]可定位的增量修改构成编辑闭环。}
+  \vspace{0.8cm}
+
+  {\color{white}\large HyperCut：让视频既能由模型生成，也能像代码一样持续演进。}
+  \vfill
+  {\color{gray}\small Q \& A}
+\end{frame}}
+
+\end{document}
