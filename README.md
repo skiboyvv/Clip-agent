@@ -1,4 +1,4 @@
-# HyperCut
+# Clip-agent
 
 **Agent 原生的视频编辑系统** —— 用自然语言描述需求，π Agent 生成可执行的 HyperFrames 代码，渲染成 MP4，并支持按帧增量修改。
 
